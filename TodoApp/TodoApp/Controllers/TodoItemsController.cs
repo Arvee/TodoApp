@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
+using Newtonsoft.Json;
 using TodoApp.Models;
 using static System.Net.HttpStatusCode;
 
@@ -31,7 +32,7 @@ namespace TodoApp.Controllers
         [Route("api/TodoItems")]
         public HttpResponseMessage GetTodoItems()
         {
-            return Request.CreateResponse(GetTodoItemsList());
+            return Request.CreateResponse(JsonConvert.SerializeObject(GetTodoItemsList()));
         }
 
         public IEnumerable<TodoItem> GetTodoItemsList()
@@ -55,7 +56,7 @@ namespace TodoApp.Controllers
             {
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
             }
-            return Request.CreateResponse(todoItem);
+            return Request.CreateResponse(JsonConvert.SerializeObject(todoItem));
         }
 
         // PUT: api/TodoItems/5
@@ -67,7 +68,6 @@ namespace TodoApp.Controllers
             if (!ModelState.IsValid)
             {
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
-                //return BadRequest(ModelState);
             }
 
             if (id != todoItem.Id)
@@ -85,7 +85,6 @@ namespace TodoApp.Controllers
             {
                 if (!TodoItemExists(id))
                 {
-                    //return NotFound();
                     return new HttpResponseMessage(HttpStatusCode.NotFound);
                 }
                 else
@@ -93,8 +92,6 @@ namespace TodoApp.Controllers
                     throw ;
                 }
             }
-
-            //return StatusCode(NoContent);
             return new HttpResponseMessage(HttpStatusCode.NoContent);
         }
 
@@ -116,7 +113,7 @@ namespace TodoApp.Controllers
             todoItem.Description = patchItem.Description;
             todoItem.DueDate = patchItem.DueDate;
 
-            return Request.CreateResponse(todoItem);
+            return Request.CreateResponse(JsonConvert.SerializeObject(todoItem));
         }
 
         // POST: api/TodoItems
@@ -132,11 +129,10 @@ namespace TodoApp.Controllers
             
              db.Items.Add(todoItem);
              db.SaveChanges();
-            var response = Request.CreateResponse(HttpStatusCode.Created, todoItem);
+            var response = Request.CreateResponse(HttpStatusCode.Created, JsonConvert.SerializeObject(todoItem));
             string uri = Url.Link("DefaultApi", new {id = todoItem.Id});
             response.Headers.Location =  new Uri(uri);
             return response;
-            //return CreatedAtRoute("DefaultApi", new { id = todoItem.Id }, todoItem);
         }
 
         // DELETE: api/TodoItems/5
@@ -154,7 +150,7 @@ namespace TodoApp.Controllers
             db.Items.Remove(todoItem);
             db.SaveChanges();
 
-            return Request.CreateResponse(todoItem);
+            return Request.CreateResponse(JsonConvert.SerializeObject(todoItem));
         }
 
         protected override void Dispose(bool disposing)
