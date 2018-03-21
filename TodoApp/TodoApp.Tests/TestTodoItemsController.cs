@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using TodoApp.Controllers;
 using TodoApp.Models;
 
@@ -101,9 +102,10 @@ namespace TodoApp.Tests
             var response = controller.GetTodoItems();
             Assert.IsNotNull(response);
             Assert.IsTrue(response.IsSuccessStatusCode);
-            TestTodoDbSet items;
-            Assert.IsTrue(response.TryGetContentValue<TestTodoDbSet> (out items));
-            Assert.AreEqual(7, items.Local.Count);
+            string result;
+            Assert.IsTrue(response.TryGetContentValue<string>(out result));
+            List<TodoItem> todoItems = JsonConvert.DeserializeObject<List<TodoItem>>(result);
+            Assert.AreEqual(7, todoItems.Count);
         }
 
         /*Use case 2 : GET returns a single todo item,
@@ -124,8 +126,9 @@ namespace TodoApp.Tests
             var response = controller.GetTodoItem(1); //as OkNegotiatedContentResult<TodoItem>;
             Assert.IsNotNull(response);
             Assert.IsTrue(response.IsSuccessStatusCode);
-            TodoItem item;
-            Assert.IsTrue(response.TryGetContentValue<TodoItem>(out item));
+            string result;
+            Assert.IsTrue(response.TryGetContentValue<string>(out result));
+            TodoItem item = JsonConvert.DeserializeObject<TodoItem>(result);
             Assert.AreEqual(1, item.Id);
         }
 
@@ -182,8 +185,9 @@ namespace TodoApp.Tests
             var response = controller.PatchTodoItem(sampleItem.Id, patchItem);
             Assert.IsNotNull(response);
             Assert.AreEqual(response.StatusCode, HttpStatusCode.OK);
-            TodoItem resultItem;
-            Assert.IsTrue(response.TryGetContentValue<TodoItem>(out resultItem));
+            string result;
+            Assert.IsTrue(response.TryGetContentValue<string>(out result));
+            TodoItem resultItem = JsonConvert.DeserializeObject<TodoItem>(result);
             Assert.AreEqual(sampleItem.Id, resultItem.Id);
             Assert.AreEqual(patchItem.Description, resultItem.Description);
             Assert.AreEqual(patchItem.Title, resultItem.Title);
@@ -253,8 +257,9 @@ namespace TodoApp.Tests
 
             Assert.IsNotNull(response);
             Assert.AreEqual(response.StatusCode,HttpStatusCode.Created);
-            TodoItem resultItem;
-            Assert.IsTrue(response.TryGetContentValue<TodoItem>(out resultItem));
+            string result;
+            Assert.IsTrue(response.TryGetContentValue<string>(out result));
+            TodoItem resultItem = JsonConvert.DeserializeObject<TodoItem>(result);
             Assert.AreEqual(sampleItem.Id, resultItem.Id);
             Assert.AreEqual(sampleItem.Description, resultItem.Description);
             Assert.AreEqual(sampleItem.Title, resultItem.Title);
